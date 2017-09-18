@@ -1,0 +1,27 @@
+version: '2'
+services:
+   db:
+      image: percona/percona-server:5.6
+      ports:
+        - "3306:3306"
+      volumes:
+        - dbvolume:/var/lib/mysql
+      environment:
+        - MYSQL_ROOT_PASSWORD=toor
+   webserver:
+     image: vpk:latest
+     # build: .
+     volumes:
+       - ./webroot:/var/www/html
+       - ./sites-enabled:/etc/nginx/sites-enabled
+       - ./certs:/etc/ssl/private
+     command: /root/startup.sh
+     # restart: on-failure
+     #environment:
+     ports:
+       - "80:80"
+       - "443:443"
+     depends_on:
+        - db
+volumes:
+  dbvolume:
