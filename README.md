@@ -1,29 +1,29 @@
 VPK
 
 1. Setup Docker on Host OS (Ubuntu 16.04 LTS)  
-1.0 - https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-repository
-1.1  
-sudo apt-get install \
-    apt-transport-https \
-    ca-certificates \
-    curl \
+1.0 - https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-repository  
+1.1 Install dependancies  
+sudo apt-get install \  
+    apt-transport-https \  
+    ca-certificates \  
+    curl \  
     software-properties-common  
-1.2  
+1.2 Add key  
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -  
-1.3  
+1.3 Add repo  
 sudo add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
    stable"  
-1.4  
+1.4 Install docker (specific version)  
 sudo apt install docker-ce=17.06.2~ce-0~ubuntu  
-1.5  
+1.5 Install docker compose  
 sudo apt install docker-compose  
   
 
 2. Build Docker image & composer file for running nginx+php+perconadb+memcached+composer+nodejs  
 [in folder image-builder]  
-2.1 docker build -t vpm .  
+2.1 docker build -t vpk .  
 
 
 3. Start Docker environment (in folder, where docker-compose.yml is located)  
