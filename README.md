@@ -33,19 +33,28 @@ sudo apt install docker-compose
 4. Pull project from WD Gitlab  
 4.1 generate pub/priv keys  
 ssh-keygen -t rsa -C "info@whitedigital.eu" -b 4096  
-4.2 add ssh public key to gitlab  
-4.3 in webroot folder: git clone [..project SSH URL from gitlab..] .  
+4.2 Add ssh public key to gitlab  
+4.3 Clone project in webroot folder  
+git clone [..project SSH URL from gitlab..] .  
 
 
 5. BUILD project  
-5.1 log into running docker container  
+5.1 Login to running docker container  
 docker exec -it vpk_webserver_1 bash  
-5.2  
+5.2 Yii framework install and config  
 cd /var/www/html  
-php init  
 common/config/main-local.php - change db user/pwd/dbname  
+common/config/params-local.php - add domain & back_end_domain
 composer install #seems that this include php init  
+php init  
 php yii migrate  
-5.3 permissions  
+5.3 Permissions  
 chmod -R a+w runtime  
-5.4 NPM ...  
+5.4 JS/CSS build   
+NPM RUN BUILD (both frontend and backend folders)  
+
+
+TODO 
+- run docker as non-root
+- SSL certs
+- start docker-compose on boot
