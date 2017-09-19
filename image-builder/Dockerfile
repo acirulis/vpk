@@ -31,10 +31,8 @@ RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer
 
 # Installing nodejs and npm 
-RUN apt-get -y install curl
+RUN apt-get -y install curl bzip2
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
 RUN apt-get -y install nodejs
-RUN npm install npm -g
-
 
 CMD ["/bin/bash"]
