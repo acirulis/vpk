@@ -82,3 +82,5 @@ TODO
 - run docker as non-root
 - SSL certs
 - start docker-compose on boot
+- log files on external volume
+- zabbix monitoring
