@@ -71,8 +71,9 @@ $ composer install #seems that this include php init
 $ php init  
 $ php yii migrate  
 
-# 5.3 Permissions  
+# 5.3 Permissions to write folders 
 $ chmod -R a+w runtime  
+$ chmod -R a+w frontend/web/uploads  
 
 # 5.4 JS/CSS build   
 # (both frontend and backend folders)  
