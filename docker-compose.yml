@@ -15,6 +15,7 @@ services:
        - ./webroot:/var/www/html
        - ./sites-enabled:/etc/nginx/sites-enabled
        - ./certs:/etc/ssl/private
+       - ./log/nginx:/var/log/nginx
      command: /root/startup.sh
      # restart: on-failure
      #environment:

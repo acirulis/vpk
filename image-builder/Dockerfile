@@ -1,21 +1,21 @@
 FROM ubuntu:latest
 LABEL maintainer "info@whitedigital.eu"
 
-#some general stuff
+#some general stuff & nginx
 RUN apt-get update \
-&& apt-get install -y vim \
-&& apt-get install -y nginx
+&& apt-get -y upgrade \
+&& apt-get install -y vim bzip2 curl nginx
 
-#lets use seperate command for now to speed up builds
+#php & php modules
 RUN apt-get install -y php-fpm \
     && apt-get install -y php-mysql php-mbstring php-gd php-bcmath php-zip php-xml php-curl php-intl php-memcached
 
 # #Expose http, https
 EXPOSE 80 443
 
-# # forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
- 	&& ln -sf /dev/stderr /var/log/nginx/error.log
+# forward request and error logs to docker log collector
+#RUN ln -sf /dev/stdout /var/log/nginx/access.log \
+# 	&& ln -sf /dev/stderr /var/log/nginx/error.log
 
 WORKDIR /root
 ADD startup.sh ./
@@ -31,7 +31,6 @@ RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer
 
 # Installing nodejs and npm 
-RUN apt-get -y install curl bzip2
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
 RUN apt-get -y install nodejs
 
