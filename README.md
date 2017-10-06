@@ -93,7 +93,7 @@ TODO
 - SSL certs
 - zabbix monitoring
 - figure out exclude folders for rsync (assets, config, ... ?)
-- image server
+- image server - https://stumbles.id.au/nginx-dynamic-image-resizing-with-caching.html
 - Percona server: how to create database and user creds?
 - DNS name in nginx config files ?
 - SQL dump backup scripts
