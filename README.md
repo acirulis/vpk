@@ -34,12 +34,12 @@ $ docker build -t vpk .
 ```
 
 3. Start Docker environment (in folder, where docker-compose.yml is located)  
-FIXME: HOW TO CREATE DATABASE/U/P ? https://hub.docker.com/r/percona/percona-server/
 ```bash
 # 3.1 Create webroot folder (otherwise docker will overwrite it with root owner)
 $ mkdir webroot
 FIXME: maybe include empty webroot in git repo?
 $ docker-compose up -d  
+# default database and user will be created on first run
 
 # and enable it to run on startup:
 # edit crontab: 
