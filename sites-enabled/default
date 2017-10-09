@@ -4,11 +4,17 @@ server {
     server_name localhost;
     listen 8888;
 
-    location ~ "^/media/(?<width>\d+)/(?<image>.+)$" {
+  location ~ "^/media/c/(?<width>\d+)/(?<height>\d+)/(?<image>.+)$" {
+        alias /var/www/html/resizer/$image;
+        image_filter crop $width $height;
+        image_filter_jpeg_quality 80;
+        image_filter_buffer 8M;
+    }
+
+    location ~ "^/media/r/(?<width>\d+)/(?<height>\d+)/(?<image>.+)$" {
         alias /var/www/html/resizer/$image;
         image_filter resize $width -;
-        # image_filter crop $width -;
-        image_filter_jpeg_quality 75;
+        image_filter_jpeg_quality 80;
         image_filter_buffer 8M;
     }
 }
@@ -38,9 +44,9 @@ server {
   		alias /var/www/html/storage/$path;
 	}
 
-    location ~ "^/media/(?<width>\d+)/(?<image>.+)$" {
+    location ~ "^/media/(?<action>\w+)/(?<width>\d+)/(?<height>\d+)/(?<image>.+)$" {
         # Proxy to internal image resizing server.
-        proxy_pass http://localhost:8888/media/$width/$image;
+        proxy_pass http://localhost:8888/media/$action/$width/$height/$image;
         proxy_cache images;
         proxy_cache_valid 200 24h;
     }

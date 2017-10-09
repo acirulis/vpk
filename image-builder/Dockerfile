@@ -4,7 +4,7 @@ LABEL maintainer "info@whitedigital.eu"
 #some general stuff & nginx
 RUN apt-get update \
 && apt-get -y upgrade \
-&& apt-get install -y vim bzip2 curl nginx
+&& apt-get install -y vim bzip2 curl nginx patch
 
 #php & php modules
 RUN apt-get install -y php-fpm \
