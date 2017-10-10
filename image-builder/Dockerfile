@@ -4,7 +4,10 @@ LABEL maintainer "info@whitedigital.eu"
 #some general stuff & nginx
 RUN apt-get update \
 && apt-get -y upgrade \
-&& apt-get install -y vim bzip2 curl nginx patch mysql-client
+&& apt-get install -y vim bzip2 curl nginx patch mysql-client tzdata cron
+
+#Set correct timezone
+RUN ln -fs /usr/share/zoneinfo/Europe/Riga /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
 
 #php & php modules
 RUN apt-get install -y php-fpm \
@@ -20,9 +23,12 @@ EXPOSE 80 443
 WORKDIR /root
 ADD startup.sh ./
 RUN chmod a+x startup.sh
+
+#setup automatic mysql dump script
 ADD mysqldump.sh ./
 RUN chmod a+x mysqldump.sh
 RUN mkdir sqldumps
+RUN (crontab -l ; echo "*/5 * * * * /root/mysqldump.sh") | crontab
 
 ADD php.ini /etc/php/7.0/fpm/php.ini
 
