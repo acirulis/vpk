@@ -20,6 +20,8 @@ EXPOSE 80 443
 WORKDIR /root
 ADD startup.sh ./
 RUN chmod a+x startup.sh
+ADD mysqldump.sh
+RUN chmod a+x mysqldump.sh
 
 
 ADD php.ini /etc/php/7.0/fpm/php.ini
