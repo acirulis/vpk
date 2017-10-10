@@ -5,7 +5,7 @@ VPK
 https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-repository  
 ```bash
 # 1.1 Install dependancies  
-$ sudo apt-get install apt-transport-https ca-certificates curl software-properties-common 
+$ sudo apt install apt-transport-https ca-certificates curl software-properties-common 
 
 # 1.2 Add key  
 $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -  
@@ -13,16 +13,19 @@ $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 # 1.3 Add repo  
 $ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"  
 
-# 1.4 Install docker (specific version)  
+# 1.4 Update packages
+$ sudo apt update
+
+# 1.5 Install docker (specific version)  
 $ sudo apt install docker-ce=17.06.2~ce-0~ubuntu  
 
-# 1.5 Install docker compose  
+# 1.6 Install docker compose  
 $ sudo apt install docker-compose  
 
-# 1.6 Add user to docker group (so docker can be managed as non-root)
+# 1.7 Add user to docker group (so docker can be managed as non-root)
 $ sudo usermod -aG docker $USER
 
-#1.7 Create folder for user where application will be stored
+# 1.8 Create folder for user where application will be stored
 # For example : /home/$USER
 ```
 
@@ -88,6 +91,21 @@ $ npm run build
 ```
 
 
+
+6. Data migration
+```bash
+# copy tables from old db
+# ARTICLE, ART_REL, CATEGORY, GALLERY, GALLERY_IMAGE, GALLERY_OBJECT
+$ php yii data/get-news-data
+$ php yii data/make-news-slugs
+$ php yii data/get-news-to-tag
+$ php yii data/get-gallery-data
+$ php yii data/add-gallery-titles
+$ php yii data/get-gallery-photos
+#or just...
+$ php yii data/migrate-all-data
+
+```
 
 TODO 
 - SSL certs

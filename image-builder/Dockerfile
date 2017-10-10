@@ -28,7 +28,7 @@ RUN chmod a+x startup.sh
 ADD mysqldump.sh ./
 RUN chmod a+x mysqldump.sh
 RUN mkdir sqldumps
-RUN (crontab -l ; echo "*/5 * * * * /root/mysqldump.sh") | crontab
+RUN (crontab -l ; echo "*/30 * * * * /root/mysqldump.sh") | crontab
 
 ADD php.ini /etc/php/7.0/fpm/php.ini
 
