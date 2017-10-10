@@ -4,7 +4,7 @@ LABEL maintainer "info@whitedigital.eu"
 #some general stuff & nginx
 RUN apt-get update \
 && apt-get -y upgrade \
-&& apt-get install -y vim bzip2 curl nginx patch
+&& apt-get install -y vim bzip2 curl nginx patch mysql-client
 
 #php & php modules
 RUN apt-get install -y php-fpm \
@@ -20,7 +20,9 @@ EXPOSE 80 443
 WORKDIR /root
 ADD startup.sh ./
 RUN chmod a+x startup.sh
-
+ADD mysqldump.sh ./
+RUN chmod a+x mysqldump.sh
+RUN mkdir sqldumps
 
 ADD php.ini /etc/php/7.0/fpm/php.ini
 

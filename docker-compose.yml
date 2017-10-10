@@ -20,6 +20,7 @@ services:
        - ./sites-enabled:/etc/nginx/sites-enabled
        - ./certs:/etc/ssl/private
        - ./log/nginx:/var/log/nginx
+       - ./sqldumps:/root/sqldumps
      command: /root/startup.sh
      # restart: on-failure
      #environment:
