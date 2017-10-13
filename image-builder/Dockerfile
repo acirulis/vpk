@@ -4,14 +4,14 @@ LABEL maintainer "info@whitedigital.eu"
 #some general stuff & nginx
 RUN apt-get update \
 && apt-get -y upgrade \
-&& apt-get install -y vim bzip2 curl nginx patch mysql-client tzdata cron
+&& apt-get install -y vim bzip2 curl nginx patch mysql-client tzdata cron memcached
 
 #Set correct timezone
 RUN ln -fs /usr/share/zoneinfo/Europe/Riga /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
 
 #php & php modules
 RUN apt-get install -y php-fpm \
-    && apt-get install -y php-mysql php-mbstring php-gd php-bcmath php-zip php-xml php-curl php-intl php-memcached
+    && apt-get install -y php-mysql php-mbstring php-gd php-bcmath php-zip php-xml php-curl php-intl php-memcache
 
 # #Expose http, https
 EXPOSE 80 443
