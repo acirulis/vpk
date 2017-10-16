@@ -1,4 +1,5 @@
 
+##################### IMAGE RESIZER INTERNAL ########################
 server {
     # Internal image resizing server.
     server_name localhost;
@@ -22,27 +23,70 @@ server {
 
 proxy_cache_path /tmp/nginx-images-cache/ levels=1:2 keys_zone=images:10m inactive=24h max_size=100m;
 
+################## HTTP FRONT ###############################
 
 server {
-	listen 80;
-	listen [::]:80;
+    listen 80;
+    listen [::]:80;
+    server_name jauns.president.lv;
+    return 301 https://$host$request_uri;
+    server_tokens off;
+}
 
 
-	client_max_body_size 32M;
-	root /var/www/html/frontend/web;
+#################################### HTTP BACKEND ####################################
+
+server {
+    listen 80;
+    listen [::]:80;
+    root /var/www/html/backend/web;
+    server_name adminjauns.president.lv;
+    return 301 https://$host$request_uri;
+    server_tokens off;
+    
+}
 
 
-	server_name jauns.president.lv;
+######################## SSL FRONT ###########################################
 
-	set $yii_bootstrap "index.php";
-	charset utf-8;
-	index index.php index.html index.htm;
-	add_header Strict-Transport-Security "max-age=31536000";
-	add_header X-Frame-Options SAMEORIGIN;
+server {
+    server_tokens off;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
 
-	location ~ "^/storage/(?<path>.+)$" {
-  		alias /var/www/html/storage/$path;
-	}
+    ssl_certificate      /etc/ssl/private/chained.crt;
+    ssl_certificate_key  /etc/ssl/private/v2.pem; 
+    ssl_dhparam  /etc/ssl/private/dhparams.pem;
+    ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';
+
+    ssl_prefer_server_ciphers on;        
+
+    allow 84.237.235.252; #vpk
+    allow 84.237.235.251; #vpk
+    allow 84.237.235.249; #vpk
+    allow 159.148.212.155; #squalio
+    allow 159.148.212.156; #squalio
+    allow 159.148.212.157; #squalio
+    allow 92.63.86.41; #wd office
+    allow 77.219.15.161; #raitis home 
+    allow 46.109.64.91; #andis home
+    deny all;
+
+    client_max_body_size 8M;
+    root /var/www/html/frontend/web;
+
+
+    server_name jauns.president.lv;
+
+    set $yii_bootstrap "index.php";
+    charset utf-8;
+    index index.php index.html index.htm;
+    add_header Strict-Transport-Security "max-age=31536000";
+    add_header X-Frame-Options SAMEORIGIN;
+
+    location ~ "^/storage/(?<path>.+)$" {
+        alias /var/www/html/storage/$path;
+    }
 
     location ~ "^/media/(?<action>\w+)/(?<width>\d+)/(?<height>\d+)/(?<image>.+)$" {
         # Proxy to internal image resizing server.
@@ -58,135 +102,99 @@ server {
         proxy_pass http://localhost:8888/;
     }
 
-	location / {
-		try_files $uri $uri/ /$yii_bootstrap?$args;
-	}
-
-    location ~ ^/(protected|framework|themes/\w+/views) {
-            deny  all;
-    }	
+    location / {
+        try_files $uri $uri/ /$yii_bootstrap?$args;
+    }
+ 
 
     location ~ \.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)$ {
             try_files $uri =404;
     }
 
 
-	location ~ \.php$ {
+    location ~ \.php$ {
             try_files $uri =404;
-			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+            fastcgi_pass unix:/run/php/php7.0-fpm.sock;
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-	        fastcgi_connect_timeout     30s;
-	        fastcgi_read_timeout        120s;
-	        fastcgi_send_timeout        120s;            
+            fastcgi_connect_timeout     30s;
+            fastcgi_read_timeout        120s;
+            fastcgi_send_timeout        120s;            
             include fastcgi_params;
             include fastcgi.conf;
-	}
+    }
 
     location ~ /\.ht {
         deny all;
-  	}
+    }
 
-	
+    
 }
 
+################################### SSL BACKEND #############################
 
 server {
-	listen 80;
-	listen [::]:80;
+    server_tokens off;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    ssl_certificate      /etc/ssl/private/chained.crt;
+    ssl_certificate_key  /etc/ssl/private/v2.pem;  
 
 
-	client_max_body_size 32M;
-	root /var/www/html/backend/web;
+    client_max_body_size 32M;
+    root /var/www/html/backend/web;
 
 
-	server_name admin.jauns.president.lv;
+    server_name adminjauns.president.lv;
 
-	set $yii_bootstrap "index.php";
-	charset utf-8;
-	index index.php;
-	add_header Strict-Transport-Security "max-age=31536000";
-	add_header X-Frame-Options SAMEORIGIN;
+    allow 84.237.235.252;
+    allow 84.237.235.251;
+    allow 84.237.235.249;
+    allow 159.148.212.155;
+    allow 159.148.212.156;
+    allow 159.148.212.157;
+    allow 92.63.86.41;
+    allow 77.219.15.161; #raitis home 
+    deny all;
 
-	location / {
-		try_files $uri $uri/ /$yii_bootstrap?$args;
-	}
 
-        location ~ "^/storage/(?<path>.+)$" {
-                alias /var/www/html/storage/$path;
-        }
+    set $yii_bootstrap "index.php";
+    charset utf-8;
+    index index.php;
+    add_header Strict-Transport-Security "max-age=31536000";
+    add_header X-Frame-Options SAMEORIGIN;
 
-	location ~ ^/(protected|framework|themes/\w+/views) {
-            deny  all;
-    	}	
+    location / {
+        try_files $uri $uri/ /$yii_bootstrap?$args;
+    }
 
-    	location ~ \.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)$ {
+    location ~ "^/storage/(?<path>.+)$" {
+            alias /var/www/html/storage/$path;
+    }
+
+
+    location ~ \.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)$ {
+        try_files $uri =404;
+    }
+
+
+    location ~ \.php$ {
             try_files $uri =404;
-    	}
-
-
-	location ~ \.php$ {
-            try_files $uri =404;
-			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+            fastcgi_pass unix:/run/php/php7.0-fpm.sock;
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-	        fastcgi_connect_timeout     30s;
-	        fastcgi_read_timeout        120s;
-	        fastcgi_send_timeout        120s;            
+            fastcgi_connect_timeout     30s;
+            fastcgi_read_timeout        120s;
+            fastcgi_send_timeout        120s;            
             include fastcgi_params;
             include fastcgi.conf;
-	}
+    }
 
 
     location ~ /\.ht {
         deny all;
-  	}
+    }
 
-	
+    
 }
-
-# server {
-# 	listen 443 ssl http2;
-# 	listen [::]:443 ssl http2;
-
-# 	# SSL configuration
-# 	#
-# 	# listen 443 ssl default_server;
-# 	# listen [::]:443 ssl default_server;
-# 	#
-# 	# Note: You should disable gzip for SSL traffic.
-# 	# See: https://bugs.debian.org/773332
-# 	#
-# 	# Read up on ssl_ciphers to ensure a secure configuration.
-# 	# See: https://bugs.debian.org/765782
-# 	#
-
-# 	#
-# 	ssl_certificate      /etc/ssl/private/whitedigital.local.crt;
-#     ssl_certificate_key  /etc/ssl/private/whitedigital.local.key;	
-
-# 	root /var/www/html;
-
-# 	# Add index.php to the list if you are using PHP
-# 	index index.php index.html index.htm;
-
-# 	server_name whitedigital.local.io;
-
-# 	location / {
-# 		# First attempt to serve request as file, then
-# 		# as directory, then fall back to displaying a 404.
-# 		try_files $uri $uri/ =404;
-# 	}
-
-# 	location ~ \.php$ {
-#         include snippets/fastcgi-php.conf;
-#         fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-
-#     }
-
-#     location ~ /\.ht {
-#         deny all;
-#   	}
-
-	
-# }

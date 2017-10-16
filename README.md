@@ -108,8 +108,9 @@ $ php yii data/migrate-all-data
 ```
 
 TODO 
-- SSL certs
 - zabbix monitoring
 - figure out exclude folders for rsync (assets, config, ... ?)
 - image server - https://stumbles.id.au/nginx-dynamic-image-resizing-with-caching.html
-- DNS name in nginx config files ?
+- php yii message frontend/config/messages.php
+- ID old galleries config
+- 
