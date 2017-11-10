@@ -4,6 +4,8 @@ server {
     # Internal image resizing server.
     server_name localhost;
     listen 8888;
+    server_tokens off;
+    root /tmp;  
 
   location ~ "^/media/c/(?<width>\d+)/(?<height>\d+)/(?<image>.+)$" {
         alias /var/www/html/storage/$image;
@@ -23,34 +25,59 @@ server {
 
 proxy_cache_path /tmp/nginx-images-cache/ levels=1:2 keys_zone=images:10m inactive=24h max_size=100m;
 
-################## HTTP FRONT ###############################
+################## DEFAULT  ###############################
+
+server{
+   server_tokens off;
+   listen 80 default_server;
+   listen [::]:80 default_server;
+   root /tmp;
+}
 
 server {
-    listen 80;
-    listen [::]:80;
+        server_tokens off;
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+
+    ssl_certificate      /etc/ssl/private/chained.crt;
+    ssl_certificate_key  /etc/ssl/private/v2.pem;
+    ssl_dhparam  /etc/ssl/private/dhparams.pem;
+    ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';
+
+    ssl_prefer_server_ciphers on;
+
+    root /tmp;
+
+}
+
+################# HTTP FRONT ################################
+
+server {
+	listen 80;
+	listen [::]:80;
     server_name jauns.president.lv;
-    return 301 https://$host$request_uri;
-    server_tokens off;
+	return 301 https://$host$request_uri;
+	server_tokens off;
 }
 
 
 #################################### HTTP BACKEND ####################################
 
 server {
-    listen 80;
-    listen [::]:80;
-    root /var/www/html/backend/web;
+	listen 80;
+	listen [::]:80;
+   	root /var/www/html/backend/web;
     server_name adminjauns.president.lv;
     return 301 https://$host$request_uri;
-    server_tokens off;
-    
+	server_tokens off;
+	
 }
 
 
 ######################## SSL FRONT ###########################################
 
 server {
-    server_tokens off;
+	server_tokens off;
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
 
@@ -61,15 +88,18 @@ server {
 
     ssl_prefer_server_ciphers on;        
 
+    allow 84.237.235.253; #vpk
     allow 84.237.235.252; #vpk
     allow 84.237.235.251; #vpk
     allow 84.237.235.249; #vpk
     allow 159.148.212.155; #squalio
     allow 159.148.212.156; #squalio
     allow 159.148.212.157; #squalio
+    allow 159.148.212.158; #squalio
     allow 92.63.86.41; #wd office
     allow 77.219.15.161; #raitis home 
     allow 46.109.64.91; #andis home
+    allow 213.226.141.102; #serz mobile
     deny all;
 
     client_max_body_size 8M;
@@ -81,8 +111,8 @@ server {
     set $yii_bootstrap "index.php";
     charset utf-8;
     index index.php index.html index.htm;
-    add_header Strict-Transport-Security "max-age=31536000";
-    add_header X-Frame-Options SAMEORIGIN;
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
 
     location ~ "^/storage/(?<path>.+)$" {
         alias /var/www/html/storage/$path;
@@ -134,7 +164,7 @@ server {
 ################################### SSL BACKEND #############################
 
 server {
-    server_tokens off;
+	server_tokens off;
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
 
@@ -148,23 +178,27 @@ server {
 
     server_name adminjauns.president.lv;
 
+    allow 84.237.235.253; #vpk
     allow 84.237.235.252;
     allow 84.237.235.251;
     allow 84.237.235.249;
     allow 159.148.212.155;
     allow 159.148.212.156;
     allow 159.148.212.157;
+    allow 159.148.212.158; #squalio
     allow 92.63.86.41;
-    allow 77.219.15.161; #raitis home 
+    allow 77.219.15.161; #raitis home
+    allow 46.109.64.91; #andis home 
+    allow 213.226.141.102; #serz mobile
     deny all;
 
 
     set $yii_bootstrap "index.php";
     charset utf-8;
     index index.php;
-    add_header Strict-Transport-Security "max-age=31536000";
-    add_header X-Frame-Options SAMEORIGIN;
-
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Cache-Control "must-revalidate, no-cache, no-store, pre-check=0, postcheck=0, max-age=0, s-maxage=0";
     location / {
         try_files $uri $uri/ /$yii_bootstrap?$args;
     }
@@ -172,6 +206,20 @@ server {
     location ~ "^/storage/(?<path>.+)$" {
             alias /var/www/html/storage/$path;
     }
+
+    location ~ "^/media/(?<action>\w+)/(?<width>\d+)/(?<height>\d+)/(?<image>.+)$" {
+        # Proxy to internal image resizing server.
+        proxy_pass http://localhost:8888/media/$action/$width/$height/$image;
+        proxy_cache images;
+        proxy_cache_valid 200 24h;
+    }
+
+    location /media {
+        # Nginx needs you to manually define DNS resolution when using
+        # variables in proxy_pass. Creating this dummy location avoids that.
+        # The error is: "no resolver defined to resolve localhost".
+        proxy_pass http://localhost:8888/;
+    }    
 
 
     location ~ \.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)$ {
@@ -184,6 +232,7 @@ server {
             fastcgi_pass unix:/run/php/php7.0-fpm.sock;
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+	    #fastcgi_param PHP_VALUE open_basedir="/var/www/html"
             fastcgi_connect_timeout     30s;
             fastcgi_read_timeout        120s;
             fastcgi_send_timeout        120s;            
