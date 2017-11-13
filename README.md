@@ -30,6 +30,7 @@ $ sudo usermod -aG docker $USER
 ```
 
 [RUN AS $USER FROM NOW ON]  
+2.0 - get Docker setup code from [GIT]  
 2. Build Docker image & composer file for running nginx+php+perconadb+memcached+composer+nodejs  
 ```bash
 # [in folder image-builder]  
@@ -41,6 +42,8 @@ $ docker build -t vpk .
 # 3.1 Create webroot folder (otherwise docker will overwrite it with root owner)
 $ mkdir webroot
 FIXME: maybe include empty webroot in git repo?
+# 3.2 Import cert files into ./certs folder (dhparams.pem, chained.crt, v2.pem)
+
 $ docker-compose up -d  
 # default database and user will be created on first run
 
@@ -70,16 +73,14 @@ $ docker exec -it vpk_webserver_1 bash
 
 # 5.2 Yii framework install and config  
 $ cd /var/www/html  
-$composer install
-FIXME: composer install default environment - PROD?
+$ composer install
 
 # edit: 
 common/config/main-local.php - change db user/pwd/dbname  
-common/config/params-local.php - add domain & back_end_domain
-$ composer install #seems that this include php init  
-$ php init  
+common/config/params-local.php – last migrated gallery id & photo id
 $ php yii migrate  
 
+FIXME: ready to remove ???? (done in composer install)
 # 5.3 Permissions to write folders 
 $ chmod -R a+w runtime  
 $ chmod -R a+w frontend/web/ ... 
@@ -95,22 +96,26 @@ $ npm run build
 6. Data migration
 ```bash
 # copy tables from old db
-# ARTICLE, ART_REL, CATEGORY, GALLERY, GALLERY_IMAGE, GALLERY_OBJECT
+# ARTICLE, ART_REL, CATEGORY, GALLERY, GALLERY_IMAGE, GALLERY_OBJECT, AGENDA, AGENDA_TEXT
 $ php yii data/get-news-data
 $ php yii data/make-news-slugs
 $ php yii data/get-news-to-tag
 $ php yii data/get-gallery-data
 $ php yii data/add-gallery-titles
 $ php yii data/get-gallery-photos
+$ php yii data/get-news-to-galleries
+$ php yii data/get-calendar-events
+$ php yii data/get-events-to-news
 #or just...
 $ php yii data/migrate-all-data
+$ php yii message frontend/config/messages.php
 
 ```
 
-TODO 
-- zabbix monitoring
-- figure out exclude folders for rsync (assets, config, ... ?)
-- image server - https://stumbles.id.au/nginx-dynamic-image-resizing-with-caching.html
-- php yii message frontend/config/messages.php
-- ID old galleries config
-- 
+DO NOT FORGET
+•	zabbix monitoring
+•	backups
+•	figure out exclude folders for rsync (assets, config, ... ?)
+•	image server - https://stumbles.id.au/nginx-dynamic-image-resizing-with-caching.html
+•	360 Virtual tour– manual copy
+
